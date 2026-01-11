@@ -47,3 +47,8 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+# SSH Keys - DO NOT COMMIT
+keys/*.key
+keys/*.key.pub
+keys/*.pem
