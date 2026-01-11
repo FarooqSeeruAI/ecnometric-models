@@ -1,0 +1,127 @@
+
+add aprim
+add aprimRatio
+add x1lnd
+add a1capex
+add a1laboex
+add a1lndex
+add a1prim 
+add a1tot 
+add a2tot
+add f1labio
+add fx3tot
+
+add f5tot2
+
+add delx6
+add f4p
+add f4q
+add f4pntrad 
+add f4qntrad
+add pf0cif
+add delPTXRATE 
+add f0taxs  
+add f1taxcsi 
+add f2taxcsi
+add f3taxcs 
+add f5taxcs 
+add t0imp
+add ftax
+add f4taxtrad 
+add f4taxntrad 
+add f1oct
+add f5
+add p3tot
+add q 
+add a3s
+
+
+
+
+add pcapstock
+add oneCapital
+shock oneCapital 1
+
+
+
+
+
+
+add a1
+add a1oct
+add a1s
+add a2
+add a2s
+add a3
+add f1lab
+add f1labo
+add f1labi
+add fx2cs
+
+add x1labioBaseShift
+
+
+add realgdp
+remove aprim
+shock realgdp 2
+
+
+
+remove ftax
+add taxcsi
+shock taxcsi 2
+
+
+add x1labiBaseShift
+add p1labiBaseShift
+
+
+add x1labiEmplWgt_'EMIRATI'
+add x1labiEmplWgt_'MIGRANTHH'
+add x1labiEmplWgt_'MIGRANTCOMB'
+add x1labiEmplWgt_'COMMUTING'
+
+
+
+shock x1labiEmplWgt_'EMIRATI' 1.29302602566892
+shock x1labiEmplWgt_'MIGRANTHH' 1.77693609525873
+shock x1labiEmplWgt_'MIGRANTCOMB' 1.77693609525873
+shock x1labiEmplWgt_'COMMUTING' 0.499999999999986
+
+shock p3tot 2
+
+shock aprimRatio_'AG' 0
+shock aprimRatio_'MIN' 0
+shock aprimRatio_'FBT' 0
+shock aprimRatio_'TEX' 0
+shock aprimRatio_'LEATHER' 0
+shock aprimRatio_'WOOD' 0
+shock aprimRatio_'PPP' 0
+shock aprimRatio_'PC' 0
+shock aprimRatio_'CHM' 0
+shock aprimRatio_'RUBBER' 0
+shock aprimRatio_'NMM' 0
+shock aprimRatio_'METAL' 0
+shock aprimRatio_'MACH' 0
+shock aprimRatio_'ELEC' 0
+shock aprimRatio_'TRNEQUIP' 0
+shock aprimRatio_'ROMAN' 0
+shock aprimRatio_'ELYGASWTR' 0
+shock aprimRatio_'CNS' 0
+shock aprimRatio_'TRD' 0
+shock aprimRatio_'AFS' 0
+shock aprimRatio_'OTP' 0
+shock aprimRatio_'WTP' 0
+shock aprimRatio_'ATP' 0
+shock aprimRatio_'WHS' 0
+shock aprimRatio_'CMN' 0
+shock aprimRatio_'OFI' 0
+shock aprimRatio_'RSA' 0
+shock aprimRatio_'OBS' 0
+shock aprimRatio_'GOV' 0
+shock aprimRatio_'EDU' 0
+shock aprimRatio_'HHT' 0
+shock aprimRatio_'REC' 0
+shock aprimRatio_'DWE' 0
+
+shock f1labo_'GOV' 0

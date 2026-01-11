@@ -1,0 +1,250 @@
+{
+  "example_payloads": {
+    "simple_employment_scenario": {
+      "description": "Simple 15% Emirati employment increase",
+      "question": "What would happen if we increase Emirati employment by 15%?",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "emiratization_15pct",
+          "year": 2023,
+          "steps": 1,
+          "shocks": {
+            "x1labiEmplWgt_EMIRATI": 15.0
+          }
+        }
+      }
+    },
+    "multi_parameter_scenario": {
+      "description": "Multiple shocks: employment and GDP",
+      "question": "Run a scenario with 15% Emirati employment increase, 10% migrant decrease, and 5% GDP growth",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "emiratization_multi",
+          "year": 2023,
+          "steps": 1,
+          "shocks": {
+            "x1labiEmplWgt_EMIRATI": 15.0,
+            "x1labiEmplWgt_MIGRANTHH": -10.0,
+            "realgdp": 5.0
+          },
+          "reporting_vars": [
+            "x1labioEmplWgt",
+            "employi",
+            "realgdp",
+            "INCGDP",
+            "p3tot"
+          ]
+        }
+      }
+    },
+    "multi_year_scenario": {
+      "description": "5-year simulation with multiple parameters",
+      "question": "Run a 5-year scenario starting 2024 with 10% Emirati employment increase and 4% GDP growth",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "emiratization_5yr",
+          "year": 2024,
+          "steps": 5,
+          "shocks": {
+            "x1labiEmplWgt_EMIRATI": 10.0,
+            "realgdp": 4.0
+          },
+          "reporting_vars": [
+            "x1labioEmplWgt",
+            "employi",
+            "realgdp",
+            "INCGDP"
+          ]
+        }
+      }
+    },
+    "sector_productivity": {
+      "description": "Agriculture productivity increase",
+      "question": "What happens if agriculture productivity increases by 20%?",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "ag_productivity_boost",
+          "year": 2023,
+          "steps": 1,
+          "shocks": {
+            "aprimRatio_AG": 20.0
+          },
+          "reporting_vars": [
+            "aprimRatio_AG",
+            "realgdp",
+            "p3tot",
+            "x1labioEmplWgt"
+          ]
+        }
+      }
+    },
+    "multi_sector_productivity": {
+      "description": "Multiple sectors productivity increase",
+      "question": "Simulate 15% productivity increase in agriculture, textiles, and manufacturing",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "multi_sector_boost",
+          "year": 2023,
+          "steps": 1,
+          "shocks": {
+            "aprimRatio_AG": 15.0,
+            "aprimRatio_TEX": 15.0,
+            "aprimRatio_MACH": 15.0
+          }
+        }
+      }
+    },
+    "tax_policy": {
+      "description": "Tax increase scenario",
+      "question": "What's the impact of 5% tax increase?",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "tax_increase_5pct",
+          "year": 2023,
+          "steps": 1,
+          "shocks": {
+            "taxcsi": 5.0
+          },
+          "reporting_vars": [
+            "realgdp",
+            "INCGDP",
+            "taxcsi",
+            "p3tot"
+          ]
+        }
+      }
+    },
+    "complex_policy": {
+      "description": "Complex policy mix: employment, productivity, and GDP",
+      "question": "Run a scenario with 15% Emirati employment, 20% agriculture productivity, and 6% GDP growth over 3 years",
+      "payload": {
+        "tool": "run_scenario",
+        "arguments": {
+          "scenario_name": "complex_policy_mix",
+          "year": 2023,
+          "steps": 3,
+          "shocks": {
+            "x1labiEmplWgt_EMIRATI": 15.0,
+            "aprimRatio_AG": 20.0,
+            "realgdp": 6.0
+          },
+          "reporting_vars": [
+            "x1labioEmplWgt",
+            "employi",
+            "realgdp",
+            "INCGDP",
+            "aprimRatio_AG",
+            "p3tot"
+          ]
+        }
+      }
+    },
+    "get_status": {
+      "description": "Check scenario status",
+      "question": "What's the status of scenario_emiratization_15pct_20240111_120000?",
+      "payload": {
+        "tool": "get_scenario_status",
+        "arguments": {
+          "scenario_id": "emiratization_15pct_20240111_120000"
+        }
+      }
+    },
+    "get_results": {
+      "description": "Get scenario results",
+      "question": "Show me the results from scenario_emiratization_15pct_20240111_120000",
+      "payload": {
+        "tool": "get_scenario_results",
+        "arguments": {
+          "scenario_id": "emiratization_15pct_20240111_120000",
+          "format": "json"
+        }
+      }
+    },
+    "get_filtered_results": {
+      "description": "Get specific variables from results",
+      "question": "Show me GDP and employment results from scenario_123",
+      "payload": {
+        "tool": "get_scenario_results",
+        "arguments": {
+          "scenario_id": "scenario_123",
+          "variables": ["realgdp", "employi"],
+          "format": "json"
+        }
+      }
+    },
+    "list_variables": {
+      "description": "List available variables",
+      "question": "What variables can I shock?",
+      "payload": {
+        "tool": "list_available_variables",
+        "arguments": {
+          "category": "all"
+        }
+      }
+    },
+    "list_employment_variables": {
+      "description": "List employment variables",
+      "question": "What employment variables are available?",
+      "payload": {
+        "tool": "list_available_variables",
+        "arguments": {
+          "category": "employment"
+        }
+      }
+    },
+    "list_sectors": {
+      "description": "List available sectors",
+      "question": "What sectors can I modify?",
+      "payload": {
+        "tool": "list_sectors",
+        "arguments": {}
+      }
+    },
+    "compare_scenarios": {
+      "description": "Compare two scenarios",
+      "question": "Compare scenario_1 and scenario_2",
+      "payload": {
+        "tool": "compare_scenarios",
+        "arguments": {
+          "scenario_id_1": "scenario_1",
+          "scenario_id_2": "scenario_2"
+        }
+      }
+    }
+  },
+  "response_examples": {
+    "scenario_started": {
+      "scenario_id": "emiratization_15pct_20240111_120000",
+      "status": "started",
+      "message": "Scenario 'emiratization_15pct' started. Use get_scenario_status to check progress."
+    },
+    "scenario_running": {
+      "status": "running",
+      "started_at": "2024-01-11T12:00:00",
+      "scenario_name": "emiratization_15pct"
+    },
+    "scenario_completed": {
+      "status": "completed",
+      "started_at": "2024-01-11T12:00:00",
+      "completed_at": "2024-01-11T12:02:30",
+      "scenario_name": "emiratization_15pct",
+      "output_dir": "outputs/emiratization_15pct"
+    },
+    "results_json": {
+      "base": [
+        {"SVAR": "x1labiEmplWgt_EMIRATI", "S0": 0.0},
+        {"SVAR": "realgdp", "S0": 3.5}
+      ],
+      "policy": [
+        {"SVAR": "x1labiEmplWgt_EMIRATI", "S0": 15.0},
+        {"SVAR": "realgdp", "S0": 4.2}
+      ]
+    }
+  }
+}

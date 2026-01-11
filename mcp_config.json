@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "cge-model": {
+      "command": "python3",
+      "args": [
+        "/Users/fseeru001/Documents/ClientEngagements/PoC/MoHRE/cge_model/mcp_server.py"
+      ],
+      "env": {
+        "PYTHONPATH": "/Users/fseeru001/Documents/ClientEngagements/PoC/MoHRE/cge_model"
+      }
+    }
+  }
+}

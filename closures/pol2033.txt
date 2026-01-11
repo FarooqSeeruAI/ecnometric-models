@@ -1,0 +1,86 @@
+
+add aprim
+add aprimRatio
+add x1lnd
+add a1capex
+add a1laboex
+add a1lndex
+add a1prim 
+add a1tot 
+add a2tot
+add f1labio
+add fx3tot
+
+add f5tot2
+
+add delx6
+add f4p
+add f4q
+add f4pntrad 
+add f4qntrad
+add pf0cif
+add delPTXRATE 
+add f0taxs  
+add f1taxcsi 
+add f2taxcsi
+add f3taxcs 
+add f5taxcs 
+add t0imp
+add ftax
+add f4taxtrad 
+add f4taxntrad 
+add f1oct
+add f5
+add phi
+add q 
+add a3s
+
+
+
+
+add pcapstock
+add oneCapital
+
+
+
+
+
+
+
+add a1
+add a1oct
+add a1s
+add a2
+add a2s
+add a3
+add f1lab
+add f1labo
+add f1labi
+add fx2cs
+
+add x1labioBaseShift
+
+
+add realgdp
+remove aprim
+shock realgdp 5.14705882352942
+
+remove ftax
+add taxcsi
+shock taxcsi 5.14705882352942
+
+add x1labiBase
+add p1labiBase
+
+add x1labiShift
+
+
+add x1labi_'EMIRATI'
+shock x1labi_'EMIRATI' 2.89432038514651
+remove x1labiShift_'EMIRATI'
+
+
+
+add aprim
+shock aprim 3.3033315791597
+remove x1labioBaseShift

@@ -1,0 +1,862 @@
+steps: 18
+substeps: 1
+doiterative: FALSE
+
+files:
+    BASEDATA: database/oranignm.xlsx
+    SUMMARY: summary.xlsx
+
+
+
+
+
+
+
+basefiles:
+    - closures/base2023.txt
+    - closures/base2024.txt
+    - closures/base2025.txt
+    - closures/base2026.txt
+    - closures/base2027.txt
+    - closures/base2028.txt
+    - closures/base2029.txt
+    - closures/base2030.txt
+    - closures/base2031.txt
+    - closures/base2032.txt
+    - closures/base2033.txt
+    - closures/base2034.txt
+    - closures/base2035.txt
+    - closures/base2036.txt
+    - closures/base2037.txt
+    - closures/base2038.txt
+    - closures/base2039.txt
+    - closures/base2040.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+polfiles:
+    - closures/pol2023.txt
+    - closures/pol2024.txt
+    - closures/pol2025.txt
+    - closures/pol2026.txt
+    - closures/pol2027.txt
+    - closures/pol2028.txt
+    - closures/pol2029.txt
+    - closures/pol2030.txt
+    - closures/pol2031.txt
+    - closures/pol2032.txt
+    - closures/pol2033.txt
+    - closures/pol2034.txt
+    - closures/pol2035.txt
+    - closures/pol2036.txt
+    - closures/pol2037.txt
+    - closures/pol2038.txt
+    - closures/pol2039.txt
+    - closures/pol2040.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+reportingvars:
+    - x1
+    - x0gdpexp
+    - V3BAS
+    - x4
+    - V0GDPINC
+    - V4BAS
+    - f1labio
+    - f4q
+    - V1BAS
+    - V1LAB
+    - V1CAP
+    - V1LND
+    - V1PTX
+    - V1OCT
+    - x1
+    - x1lab
+    - x1cap
+    - x1lnd
+    - delV1PTX
+    - x1oct
+    - MAKE
+    - q1
+    - x1cap
+    - p1cap
+    - p1capi
+    - x1capi
+    - qcapstock
+    - pcapstock
+    - x2tot
+    - VDEP
+    - VCAPSTOCK
+    - delCAPSTOCK
+    - IKERAT
+    - V2TOT
+    - oneCapital
+    - x0com
+    - MAKEI
+    - INITGDP
+    - contGDPexp
+    - p1lab
+    - p3tot
+    - realwage
+    - aprim
+    - p1lab
+    - p1labio
+    - employi
+    - phi
+    - x1labi
+    - V3TOT
+    - V5TOT
+    - x3tot
+    - x5tot
+    - x2tot
+    - x1prim
+    - V1PRIM
+    - V5BAS
+    - x5
+    - p1labi
+    - x2cs
+    - aprimRatio
+    - APRIMRATIO
+    - V0TAXCSI
+    - V1TAXCSI
+    - V2TAXCSI
+    - V3TAXcs
+    - V4TAXC
+    - V5TAXcs
+    - V0TARC
+    - V1OCTI
+    - V1PTXI
+    - taxcsi
+    - ftax
+    - INCGDP
+    - p0gdpexp
+    - x1labioEmplWgt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
