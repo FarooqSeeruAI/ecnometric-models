@@ -15,6 +15,9 @@ import json
 import os
 from pathlib import Path
 import traceback
+import hashlib
+import shutil
+import uuid
 
 # Import chat agent and model components
 from chat_agent import CGEModelChatAgent
@@ -49,6 +52,10 @@ scenarios_db: Dict[str, Dict[str, Any]] = {}
 
 # Model directory
 MODEL_DIR = Path(__file__).parent.absolute()
+
+# Cache directory for storing pre-computed results
+CACHE_DIR = MODEL_DIR / "cache"
+CACHE_DIR.mkdir(exist_ok=True)
 
 
 # Pydantic Models for Request/Response
@@ -120,6 +127,79 @@ class CompareScenariosRequest(BaseModel):
     variables: Optional[List[str]] = None
 
 
+# Cache Functions
+
+def generate_cache_key(year: int, steps: int, shocks: Dict[str, float], reporting_vars: Optional[List[str]] = None) -> str:
+    """
+    Generate a cache key from scenario parameters.
+    Uses hash to create a unique identifier for identical parameter combinations.
+    """
+    # Sort shocks for consistent hashing
+    sorted_shocks = sorted(shocks.items())
+    
+    # Create a unique string representation
+    cache_data = {
+        "year": year,
+        "steps": steps,
+        "shocks": sorted_shocks,
+        "reporting_vars": sorted(reporting_vars) if reporting_vars else None
+    }
+    
+    # Convert to JSON string and hash it
+    cache_string = json.dumps(cache_data, sort_keys=True)
+    cache_hash = hashlib.md5(cache_string.encode()).hexdigest()
+    
+    return cache_hash
+
+
+def get_cache_path(cache_key: str) -> Path:
+    """Get the cache directory path for a given cache key"""
+    return CACHE_DIR / cache_key
+
+
+def cache_exists(cache_key: str) -> bool:
+    """Check if cached results exist for a given cache key"""
+    cache_path = get_cache_path(cache_key)
+    base_file = cache_path / "base.xlsx"
+    policy_file = cache_path / "policy.xlsx"
+    return base_file.exists() and policy_file.exists()
+
+
+def save_to_cache(cache_key: str, source_dir: Path):
+    """
+    Save results from source_dir to cache.
+    Copies base.xlsx, policy.xlsx, and summary.xlsx to cache.
+    """
+    cache_path = get_cache_path(cache_key)
+    cache_path.mkdir(parents=True, exist_ok=True)
+    
+    output_files = ["base.xlsx", "policy.xlsx", "summary.xlsx"]
+    for filename in output_files:
+        src = source_dir / filename
+        dst = cache_path / filename
+        if src.exists():
+            shutil.copy2(str(src), str(dst))
+
+
+def load_from_cache(cache_key: str, target_dir: Path):
+    """
+    Load cached results to target_dir.
+    Copies cached files to the target output directory.
+    """
+    cache_path = get_cache_path(cache_key)
+    if not cache_exists(cache_key):
+        raise FileNotFoundError(f"Cache not found for key: {cache_key}")
+    
+    target_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_files = ["base.xlsx", "policy.xlsx", "summary.xlsx"]
+    for filename in output_files:
+        src = cache_path / filename
+        dst = target_dir / filename
+        if src.exists():
+            shutil.copy2(str(src), str(dst))
+
+
 # API Endpoints
 
 @app.get("/", tags=["General"])
@@ -150,23 +230,84 @@ async def run_scenario(request: RunScenarioRequest, background_tasks: Background
     - **steps**: Number of years to simulate (default: 1)
     - **shocks**: Dictionary of variable shocks {variable_name: shock_value}
     - **reporting_vars**: Optional list of variables to include in output
-    """
-    scenario_id = f"{request.scenario_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-    output_dir = request.output_dir or f"outputs/{request.scenario_name}"
     
-    # Store scenario info
+    **Caching**: If a scenario with identical parameters has been run before,
+    cached results are returned immediately without re-running the model.
+    """
+    # Generate cache key from parameters
+    cache_key = generate_cache_key(
+        request.year,
+        request.steps,
+        request.shocks,
+        request.reporting_vars
+    )
+    
+    # Check if cache exists
+    if cache_exists(cache_key):
+        # Generate scenario ID (UUID) and output directory
+        scenario_id = str(uuid.uuid4())
+        output_dir = request.output_dir or f"outputs/{request.scenario_name}"
+        started_at = datetime.now().isoformat()
+        completed_at = datetime.now().isoformat()
+        
+        # Load from cache in background
+        output_path = Path(output_dir)
+        if not output_path.is_absolute():
+            output_path = MODEL_DIR / output_path
+        
+        # Load cached results asynchronously
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            load_from_cache,
+            cache_key,
+            output_path
+        )
+        
+        # Store scenario info
+        scenarios_db[scenario_id] = {
+            "scenario_id": scenario_id,
+            "status": "completed",
+            "scenario_name": request.scenario_name,
+            "started_at": started_at,
+            "completed_at": completed_at,
+            "year": request.year,
+            "steps": request.steps,
+            "shocks": request.shocks,
+            "output_dir": output_dir,
+            "cached": True,
+            "cache_key": cache_key
+        }
+        
+        # Return immediately with completed status
+        return ScenarioStatusResponse(
+            scenario_id=scenario_id,
+            status="completed",
+            scenario_name=request.scenario_name,
+            started_at=started_at,
+            completed_at=completed_at
+        )
+    
+    # No cache - run the model
+    # Generate scenario ID (UUID) and output directory
+    scenario_id = str(uuid.uuid4())
+    output_dir = request.output_dir or f"outputs/{request.scenario_name}"
+    started_at = datetime.now().isoformat()
+    
+    # Store scenario info (minimal synchronous operation)
     scenarios_db[scenario_id] = {
         "scenario_id": scenario_id,
         "status": "running",
         "scenario_name": request.scenario_name,
-        "started_at": datetime.now().isoformat(),
+        "started_at": started_at,
         "year": request.year,
         "steps": request.steps,
         "shocks": request.shocks,
-        "output_dir": output_dir
+        "output_dir": output_dir,
+        "cache_key": cache_key
     }
     
-    # Run scenario in background
+    # Run scenario in background (non-blocking)
     background_tasks.add_task(
         execute_scenario,
         scenario_id,
@@ -175,14 +316,19 @@ async def run_scenario(request: RunScenarioRequest, background_tasks: Background
         request.steps,
         request.shocks,
         request.reporting_vars,
-        output_dir
+        output_dir,
+        cache_key
     )
     
+    # Yield control to event loop to ensure response is sent immediately
+    await asyncio.sleep(0)
+    
+    # Return response immediately
     return ScenarioStatusResponse(
         scenario_id=scenario_id,
         status="running",
         scenario_name=request.scenario_name,
-        started_at=scenarios_db[scenario_id]["started_at"]
+        started_at=started_at
     )
 
 
@@ -193,9 +339,42 @@ async def execute_scenario(
     steps: int,
     shocks: Dict[str, float],
     reporting_vars: Optional[List[str]],
-    output_dir: str
+    output_dir: str,
+    cache_key: str
 ):
-    """Execute scenario in background"""
+    """Execute scenario in background (async wrapper for blocking operations)"""
+    try:
+        # Run blocking operations in thread pool to avoid blocking event loop
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            _execute_scenario_sync,
+            scenario_id,
+            scenario_name,
+            year,
+            steps,
+            shocks,
+            reporting_vars,
+            output_dir,
+            cache_key
+        )
+    except Exception as e:
+        scenarios_db[scenario_id]["status"] = "error"
+        scenarios_db[scenario_id]["error"] = str(e)
+        scenarios_db[scenario_id]["error_traceback"] = traceback.format_exc()
+
+
+def _execute_scenario_sync(
+    scenario_id: str,
+    scenario_name: str,
+    year: int,
+    steps: int,
+    shocks: Dict[str, float],
+    reporting_vars: Optional[List[str]],
+    output_dir: str,
+    cache_key: str
+):
+    """Synchronous execution of scenario (runs in thread pool)"""
     try:
         # Create config
         config = create_scenario_config(
@@ -216,9 +395,75 @@ async def execute_scenario(
             # Run model
             run_model(model_file="orani.model", do_policy=True)
             
+            # Prepare output directory (use absolute path)
+            output_path = Path(output_dir)
+            if not output_path.is_absolute():
+                output_path = MODEL_DIR / output_path
+            output_path.mkdir(parents=True, exist_ok=True)
+            
+            # Move output files from current directory (MODEL_DIR) to output directory
+            # Since we're in MODEL_DIR after chdir, files should be in current working directory
+            output_files = ["base.xlsx", "policy.xlsx", "summary.xlsx"]
+            files_moved = []
+            files_missing = []
+            
+            # Get current working directory (should be MODEL_DIR)
+            current_dir = Path.cwd()
+            
+            for filename in output_files:
+                # Try multiple possible locations
+                possible_srcs = [
+                    current_dir / filename,  # Current directory (MODEL_DIR after chdir)
+                    MODEL_DIR / filename,     # Explicit MODEL_DIR path
+                    Path(filename)           # Relative to current directory
+                ]
+                
+                src = None
+                for possible_src in possible_srcs:
+                    if possible_src.exists():
+                        src = possible_src
+                        break
+                
+                dst = output_path / filename
+                
+                if src and src.exists():
+                    try:
+                        # Use absolute paths for move operation
+                        shutil.move(str(src.resolve()), str(dst.resolve()))
+                        files_moved.append(filename)
+                    except Exception as move_error:
+                        # If move fails, try copy then delete
+                        try:
+                            shutil.copy2(str(src.resolve()), str(dst.resolve()))
+                            src.unlink()
+                            files_moved.append(filename)
+                        except Exception as copy_error:
+                            # Log error but continue
+                            print(f"Warning: Failed to move {filename}: {move_error}, {copy_error}")
+                            files_missing.append(filename)
+                else:
+                    files_missing.append(filename)
+                    print(f"Warning: Output file {filename} not found. Tried: {[str(p) for p in possible_srcs]}")
+            
+            # Verify critical files were moved successfully
+            critical_files = ["base.xlsx", "policy.xlsx"]
+            missing_critical = [f for f in critical_files if f in files_missing]
+            
+            if missing_critical:
+                raise FileNotFoundError(
+                    f"Failed to move critical output files: {', '.join(missing_critical)}. "
+                    f"Files moved: {', '.join(files_moved) if files_moved else 'none'}. "
+                    f"Current directory: {current_dir}, MODEL_DIR: {MODEL_DIR}"
+                )
+            
+            # Save to cache for future use (only if we have base and policy)
+            if "base.xlsx" in files_moved and "policy.xlsx" in files_moved:
+                save_to_cache(cache_key, output_path)
+            
             # Update status
             scenarios_db[scenario_id]["status"] = "completed"
             scenarios_db[scenario_id]["completed_at"] = datetime.now().isoformat()
+            scenarios_db[scenario_id]["cache_key"] = cache_key
             
         finally:
             os.chdir(original_dir)
@@ -267,6 +512,33 @@ def create_scenario_config(
         config["reportingvars"] = reporting_vars
     
     return config
+
+
+def _read_results_files(output_dir: Path, variables: Optional[str] = None) -> Dict[str, Any]:
+    """Read results files synchronously (runs in thread pool)"""
+    base_file = output_dir / "base.xlsx"
+    policy_file = output_dir / "policy.xlsx"
+    
+    results = {}
+    if base_file.exists():
+        base_df = pd.read_excel(base_file, sheet_name="svars")
+        results["base"] = base_df.to_dict(orient="records")
+    
+    if policy_file.exists():
+        policy_df = pd.read_excel(policy_file, sheet_name="svars")
+        results["policy"] = policy_df.to_dict(orient="records")
+    
+    if variables:
+        var_list = [v.strip() for v in variables.split(",")]
+        filtered_results = {}
+        for sim_type in results:
+            filtered_results[sim_type] = [
+                row for row in results[sim_type]
+                if any(var in str(row.get("SVAR", "")) for var in var_list)
+            ]
+        results = filtered_results
+    
+    return results
 
 
 def create_shock_closure(base_closure: Path, shocks: Dict[str, float], output_path: Path):
@@ -343,27 +615,14 @@ async def get_scenario_results(
     
     if format == "json":
         try:
-            base_file = output_dir / "base.xlsx"
-            policy_file = output_dir / "policy.xlsx"
-            
-            results = {}
-            if base_file.exists():
-                base_df = pd.read_excel(base_file, sheet_name="svars")
-                results["base"] = base_df.to_dict(orient="records")
-            
-            if policy_file.exists():
-                policy_df = pd.read_excel(policy_file, sheet_name="svars")
-                results["policy"] = policy_df.to_dict(orient="records")
-            
-            if variables:
-                var_list = [v.strip() for v in variables.split(",")]
-                filtered_results = {}
-                for sim_type in results:
-                    filtered_results[sim_type] = [
-                        row for row in results[sim_type]
-                        if any(var in str(row.get("SVAR", "")) for var in var_list)
-                    ]
-                results = filtered_results
+            # Run file I/O operations in thread pool to avoid blocking
+            loop = asyncio.get_event_loop()
+            results = await loop.run_in_executor(
+                None,
+                _read_results_files,
+                output_dir,
+                variables
+            )
             
             return ScenarioResultsResponse(
                 scenario_id=scenario_id,
@@ -431,7 +690,7 @@ async def chat(request: ChatRequest):
             payload = parsed["payload"]
             if payload and "shocks" in payload:
                 # Create a background task to run the scenario
-                scenario_id = f"{payload.get('scenario_name', 'chat_scenario')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+                scenario_id = str(uuid.uuid4())
                 # Note: In production, you'd want to use BackgroundTasks here
                 parsed["scenario_id"] = scenario_id
         
