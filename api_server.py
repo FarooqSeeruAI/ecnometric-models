@@ -165,10 +165,11 @@ def cache_exists(cache_key: str) -> bool:
     return base_file.exists() and policy_file.exists()
 
 
-def save_to_cache(cache_key: str, source_dir: Path):
+def save_to_cache(cache_key: str, source_dir: Path, scenario_id: Optional[str] = None):
     """
     Save results from source_dir to cache.
     Copies base.xlsx, policy.xlsx, and summary.xlsx to cache.
+    Also creates a mapping file linking scenario_id to cache_key.
     """
     cache_path = get_cache_path(cache_key)
     cache_path.mkdir(parents=True, exist_ok=True)
@@ -179,12 +180,34 @@ def save_to_cache(cache_key: str, source_dir: Path):
         dst = cache_path / filename
         if src.exists():
             shutil.copy2(str(src), str(dst))
+    
+    # Create mapping file linking scenario_id to cache_key
+    if scenario_id:
+        mapping_file = cache_path / "scenario_ids.json"
+        scenario_ids = []
+        if mapping_file.exists():
+            try:
+                with open(mapping_file, 'r') as f:
+                    scenario_ids = json.load(f)
+            except:
+                scenario_ids = []
+        
+        if scenario_id not in scenario_ids:
+            scenario_ids.append(scenario_id)
+            with open(mapping_file, 'w') as f:
+                json.dump(scenario_ids, f, indent=2)
+        
+        # Also create reverse mapping: outputs/{scenario_id}/cache_link.json
+        cache_link_file = source_dir / "cache_link.json"
+        with open(cache_link_file, 'w') as f:
+            json.dump({"cache_key": cache_key, "scenario_id": scenario_id}, f, indent=2)
 
 
-def load_from_cache(cache_key: str, target_dir: Path):
+def load_from_cache(cache_key: str, target_dir: Path, scenario_id: Optional[str] = None):
     """
     Load cached results to target_dir.
     Copies cached files to the target output directory.
+    Also creates mapping files linking scenario_id to cache_key.
     """
     cache_path = get_cache_path(cache_key)
     if not cache_exists(cache_key):
@@ -198,6 +221,28 @@ def load_from_cache(cache_key: str, target_dir: Path):
         dst = target_dir / filename
         if src.exists():
             shutil.copy2(str(src), str(dst))
+    
+    # Create mapping files
+    if scenario_id:
+        # Add scenario_id to cache's scenario_ids.json
+        mapping_file = cache_path / "scenario_ids.json"
+        scenario_ids = []
+        if mapping_file.exists():
+            try:
+                with open(mapping_file, 'r') as f:
+                    scenario_ids = json.load(f)
+            except:
+                scenario_ids = []
+        
+        if scenario_id not in scenario_ids:
+            scenario_ids.append(scenario_id)
+            with open(mapping_file, 'w') as f:
+                json.dump(scenario_ids, f, indent=2)
+        
+        # Create reverse mapping in output directory
+        cache_link_file = target_dir / "cache_link.json"
+        with open(cache_link_file, 'w') as f:
+            json.dump({"cache_key": cache_key, "scenario_id": scenario_id}, f, indent=2)
 
 
 # API Endpoints
@@ -244,9 +289,9 @@ async def run_scenario(request: RunScenarioRequest, background_tasks: Background
     
     # Check if cache exists
     if cache_exists(cache_key):
-        # Generate scenario ID (UUID) and output directory
+        # Generate scenario ID (UUID) and output directory (use scenario_id)
         scenario_id = str(uuid.uuid4())
-        output_dir = request.output_dir or f"outputs/{request.scenario_name}"
+        output_dir = request.output_dir or f"outputs/{scenario_id}"
         started_at = datetime.now().isoformat()
         completed_at = datetime.now().isoformat()
         
@@ -261,7 +306,8 @@ async def run_scenario(request: RunScenarioRequest, background_tasks: Background
             None,
             load_from_cache,
             cache_key,
-            output_path
+            output_path,
+            scenario_id
         )
         
         # Store scenario info
@@ -289,9 +335,9 @@ async def run_scenario(request: RunScenarioRequest, background_tasks: Background
         )
     
     # No cache - run the model
-    # Generate scenario ID (UUID) and output directory
+    # Generate scenario ID (UUID) and output directory (use scenario_id)
     scenario_id = str(uuid.uuid4())
-    output_dir = request.output_dir or f"outputs/{request.scenario_name}"
+    output_dir = request.output_dir or f"outputs/{scenario_id}"
     started_at = datetime.now().isoformat()
     
     # Store scenario info (minimal synchronous operation)
@@ -458,7 +504,7 @@ def _execute_scenario_sync(
             
             # Save to cache for future use (only if we have base and policy)
             if "base.xlsx" in files_moved and "policy.xlsx" in files_moved:
-                save_to_cache(cache_key, output_path)
+                save_to_cache(cache_key, output_path, scenario_id)
             
             # Update status
             scenarios_db[scenario_id]["status"] = "completed"
@@ -609,7 +655,7 @@ async def get_scenario_results(
             detail=f"Scenario not completed. Status: {scenario['status']}"
         )
     
-    output_dir = Path(scenario.get("output_dir", f"outputs/{scenario['scenario_name']}"))
+    output_dir = Path(scenario.get("output_dir", f"outputs/{scenario_id}"))
     if not output_dir.is_absolute():
         output_dir = MODEL_DIR / output_dir
     
@@ -655,7 +701,7 @@ async def download_scenario_file(scenario_id: str, file_type: str):
         raise HTTPException(status_code=404, detail=f"Scenario {scenario_id} not found")
     
     scenario = scenarios_db[scenario_id]
-    output_dir = Path(scenario.get("output_dir", f"outputs/{scenario['scenario_name']}"))
+    output_dir = Path(scenario.get("output_dir", f"outputs/{scenario_id}"))
     if not output_dir.is_absolute():
         output_dir = MODEL_DIR / output_dir
     

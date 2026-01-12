@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  cge-api:
+    build: .
+    container_name: cge-model-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./outputs:/app/outputs
+      - ./temp_closures:/app/temp_closures
+      - ./database:/app/database
+      - ./closures:/app/closures
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s

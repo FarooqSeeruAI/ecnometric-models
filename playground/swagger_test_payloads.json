@@ -1,0 +1,289 @@
+{
+  "scenarios": {
+    "1_simple_emiratization": {
+      "description": "Simple 15% Emirati employment increase - Quick test",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "emiratization_test_15pct",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 15.0
+        }
+      }
+    },
+    "2_emiratization_with_gdp": {
+      "description": "Emirati employment + GDP growth",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "emiratization_gdp_growth",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 15.0,
+          "realgdp": 5.0
+        },
+        "reporting_vars": [
+          "realgdp",
+          "employi",
+          "x1labioEmplWgt",
+          "INCGDP"
+        ]
+      }
+    },
+    "3_multi_employment_shocks": {
+      "description": "Multiple employment category changes",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "multi_employment_shifts",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 15.0,
+          "x1labiEmplWgt_MIGRANTHH": -10.0,
+          "x1labiEmplWgt_COMMUTING": 5.0
+        },
+        "reporting_vars": [
+          "x1labioEmplWgt",
+          "employi",
+          "f1labio",
+          "p1labi"
+        ]
+      }
+    },
+    "4_sector_productivity": {
+      "description": "Agriculture productivity increase",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "ag_productivity_boost",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "aprimRatio_AG": 20.0
+        },
+        "reporting_vars": [
+          "aprimRatio_AG",
+          "realgdp",
+          "x1labioEmplWgt",
+          "p3tot"
+        ]
+      }
+    },
+    "5_multi_sector_productivity": {
+      "description": "Multiple sectors productivity increase",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "multi_sector_productivity",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "aprimRatio_AG": 15.0,
+          "aprimRatio_TEX": 15.0,
+          "aprimRatio_MACH": 15.0,
+          "aprimRatio_CNS": 10.0
+        },
+        "reporting_vars": [
+          "aprimRatio",
+          "realgdp",
+          "INCGDP",
+          "employi"
+        ]
+      }
+    },
+    "6_tax_policy": {
+      "description": "Tax increase scenario",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "tax_increase_5pct",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "taxcsi": 5.0
+        },
+        "reporting_vars": [
+          "realgdp",
+          "INCGDP",
+          "taxcsi",
+          "p3tot",
+          "V0TAXCSI"
+        ]
+      }
+    },
+    "7_multi_year_scenario": {
+      "description": "3-year projection with multiple shocks",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "multi_year_policy",
+        "year": 2023,
+        "steps": 3,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 10.0,
+          "realgdp": 4.0,
+          "aprimRatio_AG": 5.0
+        },
+        "reporting_vars": [
+          "realgdp",
+          "employi",
+          "x1labioEmplWgt",
+          "INCGDP",
+          "p3tot"
+        ]
+      }
+    },
+    "8_complex_policy_mix": {
+      "description": "Complex policy: employment + productivity + GDP + tax",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "complex_policy_mix",
+        "year": 2023,
+        "steps": 2,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 15.0,
+          "x1labiEmplWgt_MIGRANTHH": -5.0,
+          "aprimRatio_AG": 20.0,
+          "aprimRatio_MACH": 10.0,
+          "realgdp": 6.0,
+          "taxcsi": 2.0
+        },
+        "reporting_vars": [
+          "x1labioEmplWgt",
+          "employi",
+          "realgdp",
+          "INCGDP",
+          "aprimRatio",
+          "taxcsi",
+          "p3tot",
+          "p1labi"
+        ]
+      }
+    },
+    "9_long_term_projection": {
+      "description": "5-year long-term projection",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "long_term_5yr",
+        "year": 2024,
+        "steps": 5,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 8.0,
+          "realgdp": 3.5
+        },
+        "reporting_vars": [
+          "realgdp",
+          "INCGDP",
+          "employi",
+          "x1labioEmplWgt",
+          "p3tot"
+        ]
+      }
+    },
+    "10_employment_only": {
+      "description": "Employment changes only - minimal test",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "employment_only_test",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "x1labiEmplWgt_EMIRATI": 10.0
+        },
+        "reporting_vars": [
+          "employi",
+          "x1labioEmplWgt"
+        ]
+      }
+    }
+  },
+  "chat": {
+    "1_simple_question": {
+      "description": "Simple natural language question",
+      "endpoint": "POST /api/v1/chat",
+      "payload": {
+        "question": "What if Emirati employment increases by 15%?"
+      }
+    },
+    "2_complex_question": {
+      "description": "Complex policy question",
+      "endpoint": "POST /api/v1/chat",
+      "payload": {
+        "question": "Run a scenario with 15% Emirati employment increase, 10% migrant decrease, and 5% GDP growth over 3 years"
+      }
+    },
+    "3_productivity_question": {
+      "description": "Productivity question",
+      "endpoint": "POST /api/v1/chat",
+      "payload": {
+        "question": "What happens if agriculture productivity increases by 20%?"
+      }
+    }
+  },
+  "compare": {
+    "compare_two_scenarios": {
+      "description": "Compare two completed scenarios",
+      "endpoint": "POST /api/v1/scenarios/compare",
+      "payload": {
+        "scenario_id_1": "emiratization_test_15pct_20240112_120000",
+        "scenario_id_2": "emiratization_gdp_growth_20240112_120500",
+        "variables": [
+          "realgdp",
+          "employi",
+          "x1labioEmplWgt"
+        ]
+      }
+    }
+  },
+  "quick_test": {
+    "minimal_test": {
+      "description": "MINIMAL TEST - Use this first to verify API works",
+      "endpoint": "POST /api/v1/scenarios/run",
+      "payload": {
+        "scenario_name": "quick_test",
+        "year": 2023,
+        "steps": 1,
+        "shocks": {
+          "realgdp": 1.0
+        }
+      }
+    }
+  },
+  "usage_instructions": {
+    "swagger_ui": "1. Go to http://13.203.193.142/docs",
+    "test_scenario": "2. Find 'POST /api/v1/scenarios/run' endpoint",
+    "copy_payload": "3. Click 'Try it out'",
+    "paste_json": "4. Paste one of the payloads from above into the Request body",
+    "execute": "5. Click 'Execute'",
+    "check_status": "6. Use the returned scenario_id to check status at GET /api/v1/scenarios/{scenario_id}/status",
+    "get_results": "7. Once completed, get results at GET /api/v1/scenarios/{scenario_id}/results"
+  },
+  "variable_reference": {
+    "employment": {
+      "x1labiEmplWgt_EMIRATI": "Emirati employment weight",
+      "x1labiEmplWgt_MIGRANTHH": "Migrant household employment weight",
+      "x1labiEmplWgt_MIGRANTCOMB": "Migrant combined employment weight",
+      "x1labiEmplWgt_COMMUTING": "Commuting employment weight",
+      "employi": "Total employment index",
+      "f1labio": "Labor factor",
+      "p1labi": "Labor price"
+    },
+    "economic": {
+      "realgdp": "Real GDP growth (%)",
+      "INCGDP": "GDP income",
+      "p0gdpexp": "GDP expenditure price",
+      "p3tot": "Consumer price index (inflation)",
+      "x0gdpexp": "GDP expenditure",
+      "V0GDPINC": "GDP income value"
+    },
+    "productivity": {
+      "aprimRatio_AG": "Agriculture productivity ratio",
+      "aprimRatio_MIN": "Mining productivity ratio",
+      "aprimRatio_MACH": "Machinery productivity ratio",
+      "aprimRatio_CNS": "Construction productivity ratio",
+      "aprimRatio": "General productivity ratio"
+    },
+    "tax": {
+      "taxcsi": "Tax rate",
+      "ftax": "Tax factor",
+      "V0TAXCSI": "Tax value"
+    }
+  }
+}

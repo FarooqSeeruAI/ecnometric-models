@@ -1,0 +1,77 @@
+basefiles:
+- /Users/fseeru001/Documents/ClientEngagements/PoC/MoHRE/cge_model/closures/base2023.txt
+doiterative: false
+files:
+  BASEDATA: database/oranignm.xlsx
+  SUMMARY: summary.xlsx
+polfiles:
+- /Users/fseeru001/Documents/ClientEngagements/PoC/MoHRE/cge_model/temp_closures/mohre_aggressive_emiratization/pol2023.txt
+reportingvars:
+- x1labioEmplWgt
+- x1labiEmplWgt_EMIRATI
+- x1labiEmplWgt_MIGRANTHH
+- x1labiEmplWgt_MIGRANTCOMB
+- x1labiEmplWgt_COMMUTING
+- x1labi_EMIRATI
+- employi
+- x1labi
+- f1labio
+- p1labi
+- p1labio
+- p1lab
+- realgdp
+- INCGDP
+- V0GDPINC
+- p0gdpexp
+- x0gdpexp
+- p3tot
+- x3tot
+- V3BAS
+- V3TOT
+- x1
+- q1
+- MAKE
+- MAKEI
+- V1BAS
+- V1LAB
+- V1CAP
+- V1LND
+- V1PRIM
+- x1prim
+- x1cap
+- x1lnd
+- p1cap
+- p1capi
+- x1capi
+- aprim
+- aprimRatio
+- APRIMRATIO
+- realwage
+- phi
+- x2tot
+- x2cs
+- V2TOT
+- x4
+- V4BAS
+- x5tot
+- V5TOT
+- V5BAS
+- x5
+- taxcsi
+- V0TAXCSI
+- V1TAXCSI
+- V2TAXCSI
+- V3TAXcs
+- V4TAXC
+- V5TAXcs
+- ftax
+- VCAPSTOCK
+- qcapstock
+- pcapstock
+- delCAPSTOCK
+- VDEP
+- IKERAT
+- INITGDP
+- contGDPexp
+steps: 1
+substeps: 1
